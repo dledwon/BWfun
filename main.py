@@ -16,6 +16,11 @@ def mean_score(scores_string):
     return scores.mean()
 
 
+def std_score(scores_string):
+    scores = split_scores(scores_string)
+    return scores.std()
+
+
 def sum_score(scores_string):
     scores = split_scores(scores_string)
     return scores.sum()
@@ -51,6 +56,7 @@ categories_points = [7.5, 7.5, 15, 10, 25]
 for category in categories:
     data[category + '_wrrc'] = data[category].map(wrrc_score)
     data[category + '_mean'] = data[category].map(mean_score)
+    data[category + '_std'] = data[category].map(std_score)
     data[category + '_mean_maxmin'] = data[category].map(mean_score_maxmin)
     data[category + '_sum'] = data[category].map(sum_score)
 
