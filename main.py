@@ -28,9 +28,33 @@ def sum_score(scores_string):
 
 def mean_score_maxmin(scores_string):
     scores = split_scores(scores_string)
-    scores = np.delete(scores, scores.argmin())
+    return mean_score_maxmin_nd(scores)
+
+
+def mean_score_maxmin_nd(nd_scores):
+    max_score = nd_scores.max()
+    min_score = nd_scores.min()
+
+    scores = np.delete(nd_scores, nd_scores.argmin())
     scores = np.delete(scores, scores.argmax())
+
+    # scores = np.delete(scores, scores.argmin())
+    # scores = np.delete(scores, scores.argmax())
+
+    scores = np.append(scores, (max_score + min_score) / 2)
+    #
+    # scores = np.append(scores, (max_score+min_score)/2 - scores.std())
+    # scores = np.append(scores, min_score + scores.std())
+
     return scores.mean()
+
+
+def sum_judges_partials(row, categories, judges_count):
+    judges_points = np.zeros(judges_count)
+    for cat in categories:
+        judges_points += split_scores(row[cat])
+
+    return judges_points
 
 
 is_slow_fast = False
@@ -64,6 +88,14 @@ for category in categories:
 judges = 8
 # max_points_sum = judges * max_points
 
-data['sum_cat'] = data[[cat + '_wrrc' for cat in categories]].sum(axis=1)
+data['sum_wrrc_cat'] = data[[cat + '_wrrc' for cat in categories]].sum(axis=1)
 data['sum_all'] = data[[cat + '_sum' for cat in categories]].sum(axis=1)
 data['mean_all'] = data['sum_all'] / judges
+
+data['sum_categories'] = data.apply(sum_judges_partials, args=(categories, judges), axis=1)
+data['mean_sum_cat'] = data['sum_categories'].map(np.mean)
+data['mean_maxmin_sum_cat'] = data['sum_categories'].map(mean_score_maxmin_nd)
+data['std_sum_cat'] = data['sum_categories'].map(np.std)
+
+
+data['diff'] = data['sum_wrrc_cat'] - data['mean_sum_cat']
